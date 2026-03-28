@@ -1,0 +1,6 @@
+{
+  "name": "@e2e-cloud/skill",
+  "version": "0.1.0",
+  "description": "Claude Code skill for E2E Networks cloud management",
+  "files": ["SKILL.md"]
+}
