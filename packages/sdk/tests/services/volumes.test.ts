@@ -21,11 +21,11 @@ describe("VolumeService", () => {
     expect(http.get).toHaveBeenCalledWith("/block_storage/");
   });
 
-  it("create() sends stringified size/iops", async () => {
+  it("create() sends numeric size/iops", async () => {
     (http.post as any).mockResolvedValue({ code: 200, data: { block_id: 1 } });
     await volumes.create({ name: "vol", size: 250, iops: 5000 });
     expect(http.post).toHaveBeenCalledWith("/block_storage/", {
-      name: "vol", size: "250", iops: "5000",
+      name: "vol", size: 250, iops: 5000,
     });
   });
 
@@ -35,15 +35,15 @@ describe("VolumeService", () => {
     expect(http.delete).toHaveBeenCalledWith("/block_storage/10/");
   });
 
-  it("attach() calls POST with vm_id", async () => {
-    (http.post as any).mockResolvedValue({ code: 200, data: null });
+  it("attach() calls PUT with numeric vm_id", async () => {
+    (http.put as any).mockResolvedValue({ code: 200, data: null });
     await volumes.attach(10, 20);
-    expect(http.post).toHaveBeenCalledWith("/block_storage/10/vm/attach/", { vm_id: "20" });
+    expect(http.put).toHaveBeenCalledWith("/block_storage/10/vm/attach/", { vm_id: 20 });
   });
 
-  it("detach() calls POST with vm_id", async () => {
-    (http.post as any).mockResolvedValue({ code: 200, data: null });
+  it("detach() calls PUT with numeric vm_id", async () => {
+    (http.put as any).mockResolvedValue({ code: 200, data: null });
     await volumes.detach(10, 20);
-    expect(http.post).toHaveBeenCalledWith("/block_storage/10/vm/detach/", { vm_id: "20" });
+    expect(http.put).toHaveBeenCalledWith("/block_storage/10/vm/detach/", { vm_id: 20 });
   });
 });

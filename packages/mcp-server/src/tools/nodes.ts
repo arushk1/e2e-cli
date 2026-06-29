@@ -41,19 +41,31 @@ export function registerNodeTools(
       name: z.string().describe("Node name"),
       plan: z.string().describe("Plan identifier (e.g., C-2)"),
       image: z.string().describe("Image name (e.g., Ubuntu-22.04-Starter)"),
-      security_group_id: z.number().describe("Security group ID"),
+      ssh_keys: z.array(z.string()).describe("SSH public keys"),
+      security_group_id: z.number().optional().describe("Security group ID"),
       region: z
         .string()
         .optional()
         .default("ncr")
-        .describe("Region (ncr, mumbai)"),
-      ssh_keys: z.array(z.string()).optional().describe("SSH key names"),
+        .describe("Region code (for example, ncr)"),
       backups: z
         .boolean()
         .optional()
         .default(false)
         .describe("Enable backups"),
       vpc_id: z.number().optional().describe("VPC ID"),
+      subnet_id: z.string().optional().describe("Subnet ID inside the VPC"),
+      reserve_ip: z.string().optional().describe("Reserved IP to assign"),
+      default_public_ip: z
+        .boolean()
+        .optional()
+        .default(false)
+        .describe("Assign an auto-allocated public IP"),
+      number_of_instances: z
+        .number()
+        .optional()
+        .default(1)
+        .describe("Number of nodes to create"),
     },
     async (params) => {
       const result = await client.nodes.create(params);
@@ -88,11 +100,16 @@ export function registerNodeTools(
           "power_off",
           "reboot",
           "reinstall",
+          "save_images",
           "lock_vm",
           "unlock_vm",
           "enable_recovery_mode",
           "disable_recovery_mode",
           "rename",
+          "enable_accidental_protection",
+          "disable_accidental_protection",
+          "enable_node_compliance",
+          "disable_node_compliance",
         ])
         .describe("Action type"),
       name: z

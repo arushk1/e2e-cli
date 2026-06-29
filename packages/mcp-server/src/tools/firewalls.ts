@@ -15,17 +15,17 @@ export function registerFirewallTools(server: McpServer, client: E2EClient): voi
     return { content: [{ type: "text", text: JSON.stringify(result.data, null, 2) }] };
   });
 
-  server.tool("e2e_firewall_create", "Create a new firewall", {
+  server.tool("e2e_firewall_create", "Create a new Fortigate firewall", {
+    label: z.string().optional().default("Default").describe("Resource label"),
     name: z.string().describe("Firewall name"),
-    rules: z.array(z.object({
-      protocol: z.string().describe("Protocol (tcp, udp, icmp)"),
-      port_range: z.string().describe("Port range (e.g., 80, 443, 8000-9000)"),
-      source: z.string().describe("Source CIDR (e.g., 0.0.0.0/0)"),
-      direction: z.string().describe("Direction (inbound, outbound)"),
-      action: z.string().describe("Action (allow, deny)"),
-    })).optional().default([]).describe("Firewall rules"),
-  }, async ({ name, rules }) => {
-    const result = await client.firewalls.create({ name, rules });
+    region: z.string().optional().default("ncr").describe("Region code"),
+    plan: z.string().describe("Fortigate plan identifier"),
+    image: z.string().describe("Fortigate image identifier"),
+    vpc_id: z.number().describe("VPC ID"),
+    cn_id: z.number().describe("Committed node SKU ID"),
+    reserve_ip: z.string().optional().describe("Reserved IP to assign"),
+  }, async (params) => {
+    const result = await client.firewalls.create(params);
     return { content: [{ type: "text", text: JSON.stringify(result.data, null, 2) }] };
   });
 

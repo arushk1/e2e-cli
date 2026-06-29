@@ -35,18 +35,27 @@ describe("NodeService", () => {
     expect(result.data.id).toBe(42);
   });
 
-  it("create(params) calls POST /nodes/ with body", async () => {
+  it("create(params) calls POST /nodes/ with documented body fields", async () => {
     (http.post as any).mockResolvedValue({ code: 200, data: { id: 99 } });
     await nodes.create({
       name: "new-node",
       region: "ncr",
       plan: "C-2",
       image: "Ubuntu-22.04-Starter",
+      ssh_keys: ["ssh-ed25519 AAAAC3 test@example.com"],
       security_group_id: 100,
+      subnet_id: "282",
     });
     expect(http.post).toHaveBeenCalledWith(
       "/nodes/",
-      expect.objectContaining({ name: "new-node", plan: "C-2" })
+      expect.objectContaining({
+        name: "new-node",
+        plan: "C-2",
+        ssh_keys: ["ssh-ed25519 AAAAC3 test@example.com"],
+        number_of_instances: 1,
+        default_public_ip: false,
+        subnet_id: "282",
+      })
     );
   });
 
@@ -56,10 +65,10 @@ describe("NodeService", () => {
     expect(http.delete).toHaveBeenCalledWith("/nodes/42/");
   });
 
-  it("action(id, action) calls POST /nodes/{id}/actions/", async () => {
-    (http.post as any).mockResolvedValue({ code: 200, data: { action_type: "power_off" } });
+  it("action(id, action) calls PUT /nodes/{id}/actions/", async () => {
+    (http.put as any).mockResolvedValue({ code: 200, data: { action_type: "power_off" } });
     const result = await nodes.action(42, { type: "power_off" });
-    expect(http.post).toHaveBeenCalledWith("/nodes/42/actions/", { type: "power_off" });
+    expect(http.put).toHaveBeenCalledWith("/nodes/42/actions/", { type: "power_off" });
     expect(result.data.action_type).toBe("power_off");
   });
 });

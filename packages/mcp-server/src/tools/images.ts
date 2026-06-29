@@ -9,13 +9,9 @@ export function registerImageTools(
   server.tool("e2e_image_list", "List available OS images", {
     category: z.string().optional().describe("Filter by category"),
     os: z.string().optional().describe("Filter by OS type"),
-    image_type: z.string().optional().describe("Filter by type (e.g., private)"),
+    osversion: z.string().optional().describe("Filter by OS version"),
   }, async (params) => {
-    const result = await client.images.list(
-      params.category || params.os || params.image_type
-        ? { display_category: params.category, category: params.os, image_type: params.image_type }
-        : undefined
-    );
+    const result = await client.images.list(params);
     return { content: [{ type: "text", text: JSON.stringify(result.data, null, 2) }] };
   });
 

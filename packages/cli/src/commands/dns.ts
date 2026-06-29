@@ -8,83 +8,83 @@ export function registerDnsCommands(
 ): void {
   const dns = program
     .command("dns")
-    .description("Manage DNS zones and records");
+    .description("Manage E2E DNS forwarding domains");
 
   dns
     .command("list")
-    .description("List all DNS zones")
+    .description("List all DNS forwarding domains")
     .action(async () => {
       const client = getClient();
-      const result = await client.dns.listZones();
+      const result = await client.dns.list();
       formatOutput(result.data, program.opts().output, [
         "id",
-        "domain",
-        "status",
+        "domain_name",
+        "domain_ip",
+        "validity",
       ]);
     });
 
   dns
     .command("get")
-    .description("Get DNS zone details")
-    .requiredOption("--id <id>", "Zone ID")
+    .description("Get DNS domain details")
+    .requiredOption("--domain-name <name>", "Domain name")
     .action(async (opts) => {
       const client = getClient();
-      const result = await client.dns.getZone(Number(opts.id));
+      const result = await client.dns.get(opts.domainName);
       formatOutput(result.data, program.opts().output);
     });
 
   dns
-    .command("records")
-    .description("List records for a DNS zone")
-    .requiredOption("--zone-id <id>", "Zone ID")
+    .command("create")
+    .description("Create a DNS forwarding domain")
+    .requiredOption("--domain-name <name>", "Domain name")
+    .requiredOption("--ip-address <ip>", "IPv4 address")
     .action(async (opts) => {
       const client = getClient();
-      const result = await client.dns.listRecords(Number(opts.zoneId));
-      formatOutput(result.data, program.opts().output, [
-        "id",
-        "type",
-        "name",
-        "content",
-        "ttl",
-      ]);
-    });
-
-  dns
-    .command("add-record")
-    .description("Add a DNS record")
-    .requiredOption("--zone-id <id>", "Zone ID")
-    .requiredOption(
-      "--type <type>",
-      "Record type (A, AAAA, CNAME, MX, TXT)"
-    )
-    .requiredOption("--name <name>", "Record name")
-    .requiredOption("--content <content>", "Record content/value")
-    .option("--ttl <ttl>", "TTL in seconds", "3600")
-    .option("--priority <priority>", "Priority (for MX records)")
-    .action(async (opts) => {
-      const client = getClient();
-      const result = await client.dns.createRecord({
-        zone_id: Number(opts.zoneId),
-        type: opts.type,
-        name: opts.name,
-        content: opts.content,
-        ttl: Number(opts.ttl),
-        priority: opts.priority ? Number(opts.priority) : undefined,
+      const result = await client.dns.create({
+        domain_name: opts.domainName,
+        ip_addr: opts.ipAddress,
       });
       formatOutput(result.data, program.opts().output);
     });
 
   dns
-    .command("delete-record")
-    .description("Delete a DNS record")
-    .requiredOption("--zone-id <id>", "Zone ID")
-    .requiredOption("--record-id <id>", "Record ID")
+    .command("delete")
+    .description("Delete a DNS forwarding domain")
+    .requiredOption("--domain-id <id>", "Domain ID")
     .action(async (opts) => {
       const client = getClient();
-      await client.dns.deleteRecord(
-        Number(opts.zoneId),
-        Number(opts.recordId)
-      );
-      console.log(`DNS record ${opts.recordId} deleted.`);
+      await client.dns.delete(opts.domainId);
+      console.log(`DNS domain ${opts.domainId} deleted.`);
+    });
+
+  dns
+    .command("verify-ns")
+    .description("Verify nameservers for a DNS domain")
+    .requiredOption("--domain-name <name>", "Domain name")
+    .action(async (opts) => {
+      const client = getClient();
+      const result = await client.dns.verifyNameservers(opts.domainName);
+      formatOutput(result.data, program.opts().output);
+    });
+
+  dns
+    .command("verify-validity")
+    .description("Diagnose DNS domain validity")
+    .requiredOption("--domain-name <name>", "Domain name")
+    .action(async (opts) => {
+      const client = getClient();
+      const result = await client.dns.verifyValidity(opts.domainName);
+      formatOutput(result.data, program.opts().output);
+    });
+
+  dns
+    .command("verify-ttl")
+    .description("Diagnose DNS TTL")
+    .requiredOption("--domain-name <name>", "Domain name")
+    .action(async (opts) => {
+      const client = getClient();
+      const result = await client.dns.verifyTtl(opts.domainName);
+      formatOutput(result.data, program.opts().output);
     });
 }

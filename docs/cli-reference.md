@@ -21,13 +21,13 @@ Interactive credential setup. Saves to `~/.e2e/config.json`.
 |---------|-------------|-----------------|
 | `node list` | List all nodes | - |
 | `node get` | Get node details | `--id` |
-| `node create` | Create a node | `--name`, `--plan`, `--image`, `--security-group-id` |
+| `node create` | Create a node | `--name`, `--plan`, `--image`, `--ssh-keys` |
 | `node delete` | Delete a node | `--id` |
 | `node action` | Node action | `--id`, `--type` |
 
-Create options: `--region` (default: ncr), `--ssh-keys`, `--backups`, `--vpc-id`, `--reserve-ip`
+Create options: `--region` (default: ncr), `--security-group-id`, `--backups`, `--vpc-id`, `--subnet-id`, `--reserve-ip`, `--default-public-ip`, `--number-of-instances`
 
-Action types: `power_on`, `power_off`, `reboot`, `reinstall`, `lock_vm`, `unlock_vm`, `rename` (requires `--name`)
+Action types: `power_on`, `power_off`, `reboot`, `reinstall`, `save_images`, `lock_vm`, `unlock_vm`, `rename`, `enable_accidental_protection`, `disable_accidental_protection`, `enable_node_compliance`, `disable_node_compliance`
 
 ### `e2e volume`
 
@@ -58,12 +58,18 @@ Action types: `power_on`, `power_off`, `reboot`, `reinstall`, `lock_vm`, `unlock
 | `vpc create` | Create a VPC | `--name` |
 | `vpc delete` | Delete a VPC | `--id` |
 
+Create options: `--ipv4` for a custom CIDR, or `--e2e-vpc` to let E2E assign one automatically.
+
 ### `e2e security-group`
 
 | Command | Description | Required Options |
 |---------|-------------|-----------------|
 | `security-group list` | List security groups | - |
 | `security-group get` | Get details | `--id` |
+| `security-group create` | Create security group | `--name` |
+| `security-group update` | Update security group | `--id` |
+| `security-group delete` | Delete security group | `--id` |
+| `security-group mark-default` | Mark default security group | `--id` |
 
 ### `e2e firewall`
 
@@ -71,24 +77,30 @@ Action types: `power_on`, `power_off`, `reboot`, `reinstall`, `lock_vm`, `unlock
 |---------|-------------|-----------------|
 | `firewall list` | List firewalls | - |
 | `firewall get` | Get details | `--id` |
-| `firewall create` | Create a firewall | `--name` |
+| `firewall create` | Create a Fortigate firewall | `--name`, `--plan`, `--image`, `--vpc-id`, `--cn-id` |
 | `firewall delete` | Delete a firewall | `--id` |
 
 ### `e2e dns`
 
 | Command | Description | Required Options |
 |---------|-------------|-----------------|
-| `dns list` | List DNS zones | - |
-| `dns get` | Get zone details | `--id` |
-| `dns records` | List zone records | `--zone-id` |
-| `dns add-record` | Add DNS record | `--zone-id`, `--type`, `--name`, `--content` |
-| `dns delete-record` | Delete record | `--zone-id`, `--record-id` |
+| `dns list` | List DNS forwarding domains | - |
+| `dns get` | Get domain details | `--domain-name` |
+| `dns create` | Create DNS forwarding domain | `--domain-name`, `--ip-address` |
+| `dns delete` | Delete DNS forwarding domain | `--domain-id` |
+| `dns verify-ns` | Verify nameservers | `--domain-name` |
+| `dns verify-validity` | Diagnose domain validity | `--domain-name` |
+| `dns verify-ttl` | Diagnose TTL | `--domain-name` |
 
 ### `e2e reserve-ip`
 
 | Command | Description | Required Options |
 |---------|-------------|-----------------|
 | `reserve-ip list` | List reserved IPs | - |
-| `reserve-ip get` | Get IP details | `--id` |
+| `reserve-ip get` | Get IP details | `--ip-address` |
 | `reserve-ip create` | Reserve new IP | - |
-| `reserve-ip delete` | Release IP | `--id` |
+| `reserve-ip delete` | Release IP | `--ip-address` |
+| `reserve-ip action` | Attach, detach, or live-reserve IP | `--ip-address`, `--vm-id`, `--type` |
+| `reserve-ip convert-floating` | Convert reserved IP to floating IP | `--ip-address`, `--node-ids` |
+| `reserve-ip attach-floating` | Attach floating IP | `--ip-address`, `--node-ids` |
+| `reserve-ip detach-floating` | Detach floating IP | `--ip-address`, `--node-ids` |

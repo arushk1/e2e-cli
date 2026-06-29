@@ -11,6 +11,7 @@ export type {
 export type {
   Node,
   CreateNodeParams,
+  CreateNodeResponse,
   NodeAction,
   NodeActionType,
   NodeActionResponse,
@@ -18,19 +19,29 @@ export type {
 export type { Volume, CreateVolumeParams } from "./types/volume.js";
 export type { Image, ImageCategory, SavedImage } from "./types/image.js";
 export type { Vpc, CreateVpcParams } from "./types/vpc.js";
-export type { SecurityGroup } from "./types/security-group.js";
+export type {
+  CreateSecurityGroupParams,
+  SecurityGroup,
+  SecurityGroupRule,
+  UpdateSecurityGroupParams,
+} from "./types/security-group.js";
 export type {
   Firewall,
   CreateFirewallParams,
-  FirewallRule,
 } from "./types/firewall.js";
 export type {
-  DnsZone,
-  DnsRecord,
-  CreateDnsRecordParams,
+  CreateDnsDomainParams,
+  DnsCreateResponse,
+  DnsDeleteResponse,
+  DnsDiagnosticResponse,
+  DnsDomain,
+  DnsDomainDetails,
 } from "./types/dns.js";
 export type {
+  FloatingIpParams,
   ReserveIp,
+  ReserveIpActionParams,
+  ReserveIpActionType,
   CreateReserveIpParams,
 } from "./types/reserve-ip.js";
 

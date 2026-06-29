@@ -1,37 +1,62 @@
 import type { HttpClient } from "../http.js";
 import type { ApiResponse } from "../types/common.js";
 import type {
-  DnsZone,
-  DnsRecord,
-  CreateDnsRecordParams,
+  CreateDnsDomainParams,
+  DnsCreateResponse,
+  DnsDeleteResponse,
+  DnsDiagnosticResponse,
+  DnsDomain,
+  DnsDomainDetails,
 } from "../types/dns.js";
 
 export class DnsService {
   constructor(private readonly http: HttpClient) {}
 
-  async listZones(): Promise<ApiResponse<DnsZone[]>> {
-    return this.http.get<DnsZone[]>("/dns/");
+  async list(): Promise<ApiResponse<DnsDomain[]>> {
+    return this.http.get<DnsDomain[]>("/e2e_dns/forward/");
   }
 
-  async getZone(id: number): Promise<ApiResponse<DnsZone>> {
-    return this.http.get<DnsZone>(`/dns/${id}/`);
+  async get(domainName: string): Promise<ApiResponse<DnsDomainDetails>> {
+    return this.http.get<DnsDomainDetails>(
+      `/e2e_dns/forward/${domainName}/`
+    );
   }
 
-  async listRecords(zoneId: number): Promise<ApiResponse<DnsRecord[]>> {
-    return this.http.get<DnsRecord[]>(`/dns/${zoneId}/records/`);
+  async create(
+    params: CreateDnsDomainParams
+  ): Promise<ApiResponse<DnsCreateResponse>> {
+    return this.http.post<DnsCreateResponse>("/e2e_dns/forward/", params);
   }
 
-  async createRecord(
-    params: CreateDnsRecordParams
-  ): Promise<ApiResponse<DnsRecord>> {
-    const { zone_id, ...body } = params;
-    return this.http.post<DnsRecord>(`/dns/${zone_id}/records/`, body);
+  async delete(
+    domainId: number | string
+  ): Promise<ApiResponse<DnsDeleteResponse>> {
+    return this.http.delete<DnsDeleteResponse>("/e2e_dns/forward/", {
+      domain_id: domainId,
+    });
   }
 
-  async deleteRecord(
-    zoneId: number,
-    recordId: number
-  ): Promise<ApiResponse<void>> {
-    return this.http.delete<void>(`/dns/${zoneId}/records/${recordId}/`);
+  async verifyNameservers(
+    domainName: string
+  ): Promise<ApiResponse<DnsDiagnosticResponse>> {
+    return this.http.get<DnsDiagnosticResponse>(
+      `/e2e_dns/diagnostics/verify_ns/${domainName}/`
+    );
+  }
+
+  async verifyValidity(
+    domainName: string
+  ): Promise<ApiResponse<DnsDiagnosticResponse>> {
+    return this.http.get<DnsDiagnosticResponse>(
+      `/e2e_dns/diagnostics/verify_validity/${domainName}/`
+    );
+  }
+
+  async verifyTtl(
+    domainName: string
+  ): Promise<ApiResponse<DnsDiagnosticResponse>> {
+    return this.http.get<DnsDiagnosticResponse>(
+      `/e2e_dns/diagnostics/verify_ttl/${domainName}/`
+    );
   }
 }

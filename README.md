@@ -75,10 +75,10 @@ e2e security-group list         # List security groups
 | **`e2e volume`** | `list`, `get`, `create`, `delete`, `attach`, `detach` |
 | **`e2e image`** | `list`, `list-categories`, `list-saved`, `delete` |
 | **`e2e vpc`** | `list`, `get`, `create`, `delete` |
-| **`e2e security-group`** | `list`, `get` |
+| **`e2e security-group`** | `list`, `get`, `create`, `update`, `delete`, `mark-default` |
 | **`e2e firewall`** | `list`, `get`, `create`, `delete` |
-| **`e2e dns`** | `list`, `get`, `records`, `add-record`, `delete-record` |
-| **`e2e reserve-ip`** | `list`, `get`, `create`, `delete` |
+| **`e2e dns`** | `list`, `get`, `create`, `delete`, `verify-ns`, `verify-validity`, `verify-ttl` |
+| **`e2e reserve-ip`** | `list`, `get`, `create`, `delete`, `action`, `convert-floating`, `attach-floating`, `detach-floating` |
 
 ### Global Flags
 
@@ -98,6 +98,7 @@ e2e node create \
   --name my-server \
   --plan C-2 \
   --image Ubuntu-22.04-Starter \
+  --ssh-keys "ssh-ed25519 AAAA... user@example.com" \
   --security-group-id 12345 \
   --region ncr
 
@@ -107,7 +108,7 @@ e2e volume attach --id 100 --vm-id 12345
 
 # Manage DNS
 e2e dns list
-e2e dns add-record --zone-id 1 --type A --name www --content 1.2.3.4
+e2e dns create --domain-name example.com --ip-address 1.2.3.4
 
 # Power off a node
 e2e node action --id 12345 --type power_off
@@ -134,31 +135,35 @@ const { data: nodes } = await client.nodes.list();
 console.log(nodes);
 
 // Create a node
-const { data: node } = await client.nodes.create({
+const { data: createResult } = await client.nodes.create({
   name: "my-node",
   region: "ncr",
   plan: "C-2",
   image: "Ubuntu-22.04-Starter",
+  ssh_keys: ["ssh-ed25519 AAAA... user@example.com"],
   security_group_id: 12345,
 });
+const nodeId = createResult.node_create_response[0]?.id;
 
 // Power off
-await client.nodes.action(node.id, { type: "power_off" });
+if (nodeId) await client.nodes.action(nodeId, { type: "power_off" });
 
 // Volumes
 const { data: volumes } = await client.volumes.list();
 await client.volumes.create({ name: "data", size: 500, iops: 10000 });
 
 // VPCs
-await client.vpcs.create({ vpc_name: "my-vpc", network_size: 512 });
+await client.vpcs.create({
+  vpc_name: "my-vpc",
+  ipv4: "10.10.0.0/23",
+  is_e2e_vpc: false,
+});
 
 // DNS
-const { data: zones } = await client.dns.listZones();
-await client.dns.createRecord({
-  zone_id: 1,
-  type: "A",
-  name: "www",
-  content: "1.2.3.4",
+const { data: domains } = await client.dns.list();
+await client.dns.create({
+  domain_name: "example.com",
+  ip_addr: "1.2.3.4",
 });
 ```
 
@@ -190,12 +195,12 @@ Once configured, you can ask Claude things like:
 - "List all my running nodes"
 - "Create a new Ubuntu node with 8GB RAM"
 - "Attach a 500GB volume to my backend server"
-- "Set up DNS records for my domain"
+- "Create DNS forwarding for my domain"
 - "Power off the testing server"
 
 ### Available Tools
 
-The server exposes 30+ tools: `e2e_node_list`, `e2e_node_create`, `e2e_volume_attach`, `e2e_dns_create_record`, and more. See [MCP Setup](docs/mcp-setup.md) for the full list.
+The server exposes 30+ tools: `e2e_node_list`, `e2e_node_create`, `e2e_volume_attach`, `e2e_dns_create`, and more. See [MCP Setup](docs/mcp-setup.md) for the full list.
 
 ## Project Structure
 
@@ -276,7 +281,7 @@ See [Adding New Services](docs/adding-services.md) for a detailed guide with cod
 
 - **Base URL:** `https://api.e2enetworks.com/myaccount/api/v1`
 - **Auth:** API key (query param `?apikey=`) + Bearer token (`Authorization: Bearer`)
-- **Regions:** Delhi, Mumbai, Pune
+- **Regions:** Delhi, Chennai
 - **Docs:** [docs.e2enetworks.com/api/myaccount](https://docs.e2enetworks.com/api/myaccount/)
 - **Token creation:** [myaccount.e2enetworks.com/services/apiiam](https://myaccount.e2enetworks.com/services/apiiam)
 

@@ -18,10 +18,14 @@ describe("VpcService", () => {
     expect(http.get).toHaveBeenCalledWith("/vpc/list/");
   });
 
-  it("create() calls POST /vpc/", async () => {
+  it("create() calls POST /vpc/ with documented body", async () => {
     (http.post as any).mockResolvedValue({ code: 200, data: { network_id: 1 } });
-    await vpcs.create({ vpc_name: "my-vpc", network_size: 512 });
-    expect(http.post).toHaveBeenCalledWith("/vpc/", { vpc_name: "my-vpc", network_size: 512 });
+    await vpcs.create({ vpc_name: "my-vpc", ipv4: "10.10.0.0/23", is_e2e_vpc: false });
+    expect(http.post).toHaveBeenCalledWith("/vpc/", {
+      vpc_name: "my-vpc",
+      ipv4: "10.10.0.0/23",
+      is_e2e_vpc: false,
+    });
   });
 
   it("delete(id) calls DELETE /vpc/{id}/", async () => {

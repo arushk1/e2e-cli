@@ -3,6 +3,7 @@ import type { ApiResponse } from "../types/common.js";
 import type {
   Node,
   CreateNodeParams,
+  CreateNodeResponse,
   NodeAction,
   NodeActionResponse,
 } from "../types/node.js";
@@ -18,28 +19,38 @@ export class NodeService {
     return this.http.get<Node>(`/nodes/${id}/`);
   }
 
-  async create(params: CreateNodeParams): Promise<ApiResponse<Node>> {
+  async create(
+    params: CreateNodeParams
+  ): Promise<ApiResponse<CreateNodeResponse>> {
     const body = {
+      label: params.label ?? "default",
       name: params.name,
       region: params.region,
       plan: params.plan,
       image: params.image,
-      security_group_id: params.security_group_id,
-      ssh_keys: params.ssh_keys ?? [],
-      start_scripts: [],
+      image_id: params.image_id,
+      is_saved_image: params.is_saved_image ?? false,
+      saved_image_template_id: params.saved_image_template_id ?? null,
+      ssh_keys: params.ssh_keys,
+      start_scripts: params.start_scripts ?? [],
+      disable_password: params.disable_password ?? true,
+      disk: params.disk,
       backups: params.backups ?? false,
+      is_encryption_required: params.is_encryption_required ?? false,
+      isEncryptionEnabled: params.isEncryptionEnabled ?? false,
+      encryption_passphrase: params.encryption_passphrase,
       enable_bitninja: params.enable_bitninja ?? false,
-      disable_password: params.disable_password ?? false,
-      is_saved_image: false,
-      saved_image_template_id: null,
-      is_ipv6_availed: params.is_ipv6_availed ?? false,
-      vpc_id: params.vpc_id ?? null,
-      default_public_ip: params.default_public_ip ?? true,
-      ngc_container_id: null,
+      security_group_id: params.security_group_id,
+      vpc_id: params.vpc_id,
+      subnet_id: params.subnet_id,
+      default_public_ip: params.default_public_ip ?? false,
       reserve_ip: params.reserve_ip ?? "",
-      reserve_ip_pool: "",
+      is_ipv6_availed: params.is_ipv6_availed ?? false,
+      is_private: params.is_private ?? false,
+      ngc_container_id: params.ngc_container_id ?? null,
+      number_of_instances: params.number_of_instances ?? 1,
     };
-    return this.http.post<Node>("/nodes/", body);
+    return this.http.post<CreateNodeResponse>("/nodes/", body);
   }
 
   async delete(id: number): Promise<ApiResponse<void>> {
@@ -50,7 +61,7 @@ export class NodeService {
     id: number,
     action: NodeAction
   ): Promise<ApiResponse<NodeActionResponse>> {
-    return this.http.post<NodeActionResponse>(
+    return this.http.put<NodeActionResponse>(
       `/nodes/${id}/actions/`,
       action
     );

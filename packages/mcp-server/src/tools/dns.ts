@@ -3,42 +3,51 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { E2EClient } from "@e2e-cloud/sdk";
 
 export function registerDnsTools(server: McpServer, client: E2EClient): void {
-  server.tool("e2e_dns_list_zones", "List all DNS zones", {}, async () => {
-    const result = await client.dns.listZones();
+  server.tool("e2e_dns_list", "List DNS forwarding domains", {}, async () => {
+    const result = await client.dns.list();
     return { content: [{ type: "text", text: JSON.stringify(result.data, null, 2) }] };
   });
 
-  server.tool("e2e_dns_get_zone", "Get DNS zone details", {
-    id: z.number().describe("Zone ID"),
-  }, async ({ id }) => {
-    const result = await client.dns.getZone(id);
+  server.tool("e2e_dns_get", "Get DNS domain details", {
+    domain_name: z.string().describe("Domain name"),
+  }, async ({ domain_name }) => {
+    const result = await client.dns.get(domain_name);
     return { content: [{ type: "text", text: JSON.stringify(result.data, null, 2) }] };
   });
 
-  server.tool("e2e_dns_list_records", "List DNS records for a zone", {
-    zone_id: z.number().describe("Zone ID"),
-  }, async ({ zone_id }) => {
-    const result = await client.dns.listRecords(zone_id);
-    return { content: [{ type: "text", text: JSON.stringify(result.data, null, 2) }] };
-  });
-
-  server.tool("e2e_dns_create_record", "Create a DNS record", {
-    zone_id: z.number().describe("Zone ID"),
-    type: z.string().describe("Record type (A, AAAA, CNAME, MX, TXT)"),
-    name: z.string().describe("Record name"),
-    content: z.string().describe("Record value"),
-    ttl: z.number().optional().default(3600).describe("TTL in seconds"),
-    priority: z.number().optional().describe("Priority (for MX records)"),
+  server.tool("e2e_dns_create", "Create a DNS forwarding domain", {
+    domain_name: z.string().describe("Domain name"),
+    ip_addr: z.string().describe("IPv4 address"),
   }, async (params) => {
-    const result = await client.dns.createRecord(params);
+    const result = await client.dns.create(params);
     return { content: [{ type: "text", text: JSON.stringify(result.data, null, 2) }] };
   });
 
-  server.tool("e2e_dns_delete_record", "Delete a DNS record", {
-    zone_id: z.number().describe("Zone ID"),
-    record_id: z.number().describe("Record ID"),
-  }, async ({ zone_id, record_id }) => {
-    await client.dns.deleteRecord(zone_id, record_id);
-    return { content: [{ type: "text", text: `DNS record ${record_id} deleted successfully.` }] };
+  server.tool("e2e_dns_delete", "Delete a DNS forwarding domain", {
+    domain_id: z.union([z.number(), z.string()]).describe("Domain ID"),
+  }, async ({ domain_id }) => {
+    await client.dns.delete(domain_id);
+    return { content: [{ type: "text", text: `DNS domain ${domain_id} deleted successfully.` }] };
+  });
+
+  server.tool("e2e_dns_verify_nameservers", "Verify nameservers for a DNS domain", {
+    domain_name: z.string().describe("Domain name"),
+  }, async ({ domain_name }) => {
+    const result = await client.dns.verifyNameservers(domain_name);
+    return { content: [{ type: "text", text: JSON.stringify(result.data, null, 2) }] };
+  });
+
+  server.tool("e2e_dns_verify_validity", "Diagnose DNS domain validity", {
+    domain_name: z.string().describe("Domain name"),
+  }, async ({ domain_name }) => {
+    const result = await client.dns.verifyValidity(domain_name);
+    return { content: [{ type: "text", text: JSON.stringify(result.data, null, 2) }] };
+  });
+
+  server.tool("e2e_dns_verify_ttl", "Diagnose DNS TTL", {
+    domain_name: z.string().describe("Domain name"),
+  }, async ({ domain_name }) => {
+    const result = await client.dns.verifyTtl(domain_name);
+    return { content: [{ type: "text", text: JSON.stringify(result.data, null, 2) }] };
   });
 }

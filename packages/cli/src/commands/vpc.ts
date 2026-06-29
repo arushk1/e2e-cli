@@ -38,12 +38,14 @@ export function registerVpcCommands(
     .command("create")
     .description("Create a new VPC")
     .requiredOption("--name <name>", "VPC name")
-    .option("--size <size>", "Network size", "512")
+    .option("--ipv4 <cidr>", "IPv4 CIDR, required when --e2e-vpc is not used")
+    .option("--e2e-vpc", "Let E2E assign the VPC CIDR automatically")
     .action(async (opts) => {
       const client = getClient();
       const result = await client.vpcs.create({
         vpc_name: opts.name,
-        network_size: Number(opts.size),
+        ipv4: opts.ipv4,
+        is_e2e_vpc: opts.e2eVpc ?? false,
       });
       formatOutput(result.data, program.opts().output);
     });

@@ -1,5 +1,4 @@
 export interface ReserveIp {
-  id: number;
   ip_address: string;
   reserve_id: number;
   status: string;
@@ -12,3 +11,15 @@ export interface ReserveIp {
 }
 
 export interface CreateReserveIpParams {}
+
+export type ReserveIpActionType = "attach" | "detach" | "live-reserve";
+
+export interface ReserveIpActionParams {
+  vm_id: number;
+  type: ReserveIpActionType;
+}
+
+export interface FloatingIpParams {
+  ip_address: string;
+  node_ids: number[];
+}

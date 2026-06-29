@@ -37,7 +37,7 @@ e2e node list
 e2e security-group list
 
 # Create a node
-e2e node create --name my-first-node --plan C-2 --image Ubuntu-22.04-Starter --security-group-id <id>
+e2e node create --name my-first-node --plan C-2 --image Ubuntu-22.04-Starter --ssh-keys "<ssh-public-key>" --security-group-id <id>
 
 # Check node status
 e2e node get --id <node-id>

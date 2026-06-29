@@ -6,21 +6,15 @@ export class ImageService {
   constructor(private readonly http: HttpClient) {}
 
   async listCategories(): Promise<ApiResponse<ImageCategory>> {
-    return this.http.get<ImageCategory>("/images/category-list/", {
-      contact_person_id: "null",
-    });
+    return this.http.get<ImageCategory>("/images/os-category/");
   }
 
   async list(params?: {
-    display_category?: string;
     category?: string;
+    os?: string;
     osversion?: string;
-    image_type?: string;
   }): Promise<ApiResponse<Image[]>> {
-    return this.http.get<Image[]>("/images/", {
-      contact_person_id: "null",
-      ...params,
-    });
+    return this.http.get<Image[]>("/images/", params);
   }
 
   async listSaved(): Promise<ApiResponse<SavedImage[]>> {
@@ -28,9 +22,7 @@ export class ImageService {
   }
 
   async delete(id: number): Promise<ApiResponse<void>> {
-    return this.http.put<void>(`/images/${id}/`, {
-      action_type: "delete_image",
-    });
+    return this.http.delete<void>(`/images/${id}/`);
   }
 
   async rename(id: number, name: string): Promise<ApiResponse<void>> {

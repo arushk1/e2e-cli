@@ -39,24 +39,32 @@ export function registerNodeCommands(
     .requiredOption("--name <name>", "Node name")
     .requiredOption("--plan <plan>", "Plan identifier (e.g., C-2)")
     .requiredOption("--image <image>", "Image name (e.g., Ubuntu-22.04-Starter)")
-    .requiredOption("--security-group-id <id>", "Security group ID")
+    .requiredOption("--ssh-keys <keys>", "Comma-separated SSH public keys")
+    .option("--security-group-id <id>", "Security group ID")
     .option("--region <region>", "Region", "ncr")
-    .option("--ssh-keys <keys>", "Comma-separated SSH key names")
     .option("--backups", "Enable backups")
     .option("--vpc-id <id>", "VPC ID")
+    .option("--subnet-id <id>", "Subnet ID inside the VPC")
     .option("--reserve-ip <ip>", "Reserve IP to assign")
+    .option("--default-public-ip", "Assign an auto-allocated public IP")
+    .option("--number-of-instances <count>", "Number of nodes to create", "1")
     .action(async (opts) => {
       const client = getClient();
       const result = await client.nodes.create({
         name: opts.name,
         plan: opts.plan,
         image: opts.image,
-        security_group_id: Number(opts.securityGroupId),
+        security_group_id: opts.securityGroupId
+          ? Number(opts.securityGroupId)
+          : undefined,
         region: opts.region,
-        ssh_keys: opts.sshKeys ? opts.sshKeys.split(",") : undefined,
+        ssh_keys: opts.sshKeys.split(","),
         backups: opts.backups ?? false,
         vpc_id: opts.vpcId ? Number(opts.vpcId) : undefined,
+        subnet_id: opts.subnetId,
         reserve_ip: opts.reserveIp,
+        default_public_ip: opts.defaultPublicIp ?? false,
+        number_of_instances: Number(opts.numberOfInstances),
       });
       formatOutput(result.data, program.opts().output);
     });

@@ -9,14 +9,19 @@ export class VpcService {
     return this.http.get<Vpc[]>("/vpc/list/");
   }
 
-  async get(id: number): Promise<ApiResponse<Vpc>> {
-    return this.http.get<Vpc>(`/vpc/${id}/`);
+  async get(id: number): Promise<ApiResponse<Vpc | undefined>> {
+    const response = await this.list();
+    return {
+      ...response,
+      data: response.data.find((vpc) => vpc.network_id === id),
+    };
   }
 
   async create(params: CreateVpcParams): Promise<ApiResponse<Vpc>> {
     return this.http.post<Vpc>("/vpc/", {
       vpc_name: params.vpc_name,
-      network_size: params.network_size,
+      ipv4: params.ipv4,
+      is_e2e_vpc: params.is_e2e_vpc,
     });
   }
 

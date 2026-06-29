@@ -30,4 +30,55 @@ export function registerSecurityGroupCommands(
       const result = await client.securityGroups.get(Number(opts.id));
       formatOutput(result.data, program.opts().output);
     });
+
+  sg.command("create")
+    .description("Create a security group")
+    .requiredOption("--name <name>", "Security group name")
+    .option("--description <description>", "Security group description", "")
+    .option("--rules <rules>", "JSON array of security group rules", "[]")
+    .option("--default", "Make this the default security group")
+    .action(async (opts) => {
+      const client = getClient();
+      const result = await client.securityGroups.create({
+        name: opts.name,
+        description: opts.description,
+        rules: JSON.parse(opts.rules),
+        default: opts.default ?? false,
+      });
+      formatOutput(result.data, program.opts().output);
+    });
+
+  sg.command("update")
+    .description("Update a security group")
+    .requiredOption("--id <id>", "Security group ID")
+    .option("--name <name>", "Security group name")
+    .option("--description <description>", "Security group description")
+    .option("--rules <rules>", "JSON array of security group rules")
+    .action(async (opts) => {
+      const client = getClient();
+      const result = await client.securityGroups.update(Number(opts.id), {
+        name: opts.name,
+        description: opts.description,
+        rules: opts.rules ? JSON.parse(opts.rules) : undefined,
+      });
+      formatOutput(result.data, program.opts().output);
+    });
+
+  sg.command("delete")
+    .description("Delete a security group")
+    .requiredOption("--id <id>", "Security group ID")
+    .action(async (opts) => {
+      const client = getClient();
+      await client.securityGroups.delete(Number(opts.id));
+      console.log(`Security group ${opts.id} deleted.`);
+    });
+
+  sg.command("mark-default")
+    .description("Mark a security group as the default")
+    .requiredOption("--id <id>", "Security group ID")
+    .action(async (opts) => {
+      const client = getClient();
+      await client.securityGroups.markDefault(Number(opts.id));
+      console.log(`Security group ${opts.id} marked as default.`);
+    });
 }

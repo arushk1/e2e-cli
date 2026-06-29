@@ -17,6 +17,7 @@ vi.mock("node:os", async (importOriginal) => {
 });
 
 import { loadConfig, saveConfig, getConfigPath } from "../src/config.js";
+import { SUPPORTED_REGIONS } from "../src/commands/configure.js";
 
 describe("config", () => {
   const configDir = "/tmp/test-home-e2e/.e2e";
@@ -55,5 +56,9 @@ describe("config", () => {
     const config = loadConfig();
     expect(config.apiKey).toBe("key");
     expect(config.authToken).toBe("tok");
+  });
+
+  it("configure command exposes only currently supported MyAccount regions", () => {
+    expect(SUPPORTED_REGIONS).toEqual(["Delhi", "Chennai"]);
   });
 });

@@ -12,5 +12,6 @@ export interface Vpc {
 
 export interface CreateVpcParams {
   vpc_name: string;
-  network_size: number;
+  ipv4?: string;
+  is_e2e_vpc?: boolean;
 }

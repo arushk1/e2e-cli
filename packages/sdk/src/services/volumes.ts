@@ -16,8 +16,8 @@ export class VolumeService {
   async create(params: CreateVolumeParams): Promise<ApiResponse<Volume>> {
     return this.http.post<Volume>("/block_storage/", {
       name: params.name,
-      size: String(params.size),
-      iops: String(params.iops),
+      size: params.size,
+      iops: params.iops,
     });
   }
 
@@ -26,14 +26,14 @@ export class VolumeService {
   }
 
   async attach(volumeId: number, vmId: number): Promise<ApiResponse<void>> {
-    return this.http.post<void>(`/block_storage/${volumeId}/vm/attach/`, {
-      vm_id: String(vmId),
+    return this.http.put<void>(`/block_storage/${volumeId}/vm/attach/`, {
+      vm_id: vmId,
     });
   }
 
   async detach(volumeId: number, vmId: number): Promise<ApiResponse<void>> {
-    return this.http.post<void>(`/block_storage/${volumeId}/vm/detach/`, {
-      vm_id: String(vmId),
+    return this.http.put<void>(`/block_storage/${volumeId}/vm/detach/`, {
+      vm_id: vmId,
     });
   }
 }

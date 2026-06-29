@@ -12,27 +12,36 @@ describe("DnsService", () => {
 
   beforeEach(() => { http = mockHttp(); dns = new DnsService(http); });
 
-  it("listZones() calls GET /dns/", async () => {
+  it("list() calls GET /e2e_dns/forward/", async () => {
     (http.get as any).mockResolvedValue({ code: 200, data: [] });
-    await dns.listZones();
-    expect(http.get).toHaveBeenCalledWith("/dns/");
+    await dns.list();
+    expect(http.get).toHaveBeenCalledWith("/e2e_dns/forward/");
   });
 
-  it("listRecords(zoneId) calls GET /dns/{zoneId}/records/", async () => {
-    (http.get as any).mockResolvedValue({ code: 200, data: [] });
-    await dns.listRecords(5);
-    expect(http.get).toHaveBeenCalledWith("/dns/5/records/");
+  it("get(domainName) calls GET /e2e_dns/forward/{domainName}/", async () => {
+    (http.get as any).mockResolvedValue({ code: 200, data: { domain_name: "example.com." } });
+    await dns.get("example.com");
+    expect(http.get).toHaveBeenCalledWith("/e2e_dns/forward/example.com/");
   });
 
-  it("createRecord() calls POST /dns/{zoneId}/records/", async () => {
+  it("create() calls POST /e2e_dns/forward/", async () => {
     (http.post as any).mockResolvedValue({ code: 200, data: { id: 1 } });
-    await dns.createRecord({ zone_id: 5, type: "A", name: "www", content: "1.2.3.4" });
-    expect(http.post).toHaveBeenCalledWith("/dns/5/records/", { type: "A", name: "www", content: "1.2.3.4" });
+    await dns.create({ domain_name: "example.com", ip_addr: "1.2.3.4" });
+    expect(http.post).toHaveBeenCalledWith("/e2e_dns/forward/", {
+      domain_name: "example.com",
+      ip_addr: "1.2.3.4",
+    });
   });
 
-  it("deleteRecord() calls DELETE /dns/{zoneId}/records/{recordId}/", async () => {
+  it("delete() calls DELETE /e2e_dns/forward/ with domain_id query", async () => {
     (http.delete as any).mockResolvedValue({ code: 200, data: null });
-    await dns.deleteRecord(5, 10);
-    expect(http.delete).toHaveBeenCalledWith("/dns/5/records/10/");
+    await dns.delete(10280);
+    expect(http.delete).toHaveBeenCalledWith("/e2e_dns/forward/", { domain_id: 10280 });
+  });
+
+  it("verifyNameservers() calls the nameserver diagnostics endpoint", async () => {
+    (http.get as any).mockResolvedValue({ code: 200, data: { status: true } });
+    await dns.verifyNameservers("example.com");
+    expect(http.get).toHaveBeenCalledWith("/e2e_dns/diagnostics/verify_ns/example.com/");
   });
 });

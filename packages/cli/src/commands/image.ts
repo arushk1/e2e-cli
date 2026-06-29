@@ -13,13 +13,13 @@ export function registerImageCommands(
     .description("List available images")
     .option("--category <category>", "Filter by category")
     .option("--os <os>", "Filter by OS type")
-    .option("--type <type>", "Image type (e.g., private)")
+    .option("--os-version <version>", "Filter by OS version")
     .action(async (opts) => {
       const client = getClient();
       const result = await client.images.list({
-        display_category: opts.category,
-        category: opts.os,
-        image_type: opts.type,
+        category: opts.category,
+        os: opts.os,
+        osversion: opts.osVersion,
       });
       formatOutput(result.data, program.opts().output, [
         "plan",

@@ -15,16 +15,16 @@ describe("ImageService", () => {
     images = new ImageService(http);
   });
 
-  it("listCategories() calls GET /images/category-list/", async () => {
+  it("listCategories() calls GET /images/os-category/", async () => {
     (http.get as any).mockResolvedValue({ code: 200, data: { category_list: {} } });
     await images.listCategories();
-    expect(http.get).toHaveBeenCalledWith("/images/category-list/", { contact_person_id: "null" });
+    expect(http.get).toHaveBeenCalledWith("/images/os-category/");
   });
 
   it("list() calls GET /images/ with params", async () => {
     (http.get as any).mockResolvedValue({ code: 200, data: [] });
-    await images.list({ image_type: "private" });
-    expect(http.get).toHaveBeenCalledWith("/images/", { contact_person_id: "null", image_type: "private" });
+    await images.list({ os: "Ubuntu", osversion: "24.04" });
+    expect(http.get).toHaveBeenCalledWith("/images/", { os: "Ubuntu", osversion: "24.04" });
   });
 
   it("listSaved() calls GET /images/saved-images/", async () => {
@@ -33,9 +33,9 @@ describe("ImageService", () => {
     expect(http.get).toHaveBeenCalledWith("/images/saved-images/");
   });
 
-  it("delete() calls PUT with delete_image action", async () => {
-    (http.put as any).mockResolvedValue({ code: 200, data: null });
+  it("delete() calls DELETE /images/{id}/", async () => {
+    (http.delete as any).mockResolvedValue({ code: 200, data: null });
     await images.delete(5);
-    expect(http.put).toHaveBeenCalledWith("/images/5/", { action_type: "delete_image" });
+    expect(http.delete).toHaveBeenCalledWith("/images/5/");
   });
 });

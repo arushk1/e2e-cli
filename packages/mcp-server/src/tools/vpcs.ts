@@ -17,9 +17,10 @@ export function registerVpcTools(server: McpServer, client: E2EClient): void {
 
   server.tool("e2e_vpc_create", "Create a new VPC", {
     name: z.string().describe("VPC name"),
-    network_size: z.number().optional().default(512).describe("Network size (number of IPs)"),
-  }, async ({ name, network_size }) => {
-    const result = await client.vpcs.create({ vpc_name: name, network_size });
+    ipv4: z.string().optional().describe("IPv4 CIDR, required when is_e2e_vpc is false"),
+    is_e2e_vpc: z.boolean().optional().default(false).describe("Let E2E assign the VPC CIDR automatically"),
+  }, async ({ name, ipv4, is_e2e_vpc }) => {
+    const result = await client.vpcs.create({ vpc_name: name, ipv4, is_e2e_vpc });
     return { content: [{ type: "text", text: JSON.stringify(result.data, null, 2) }] };
   });
 

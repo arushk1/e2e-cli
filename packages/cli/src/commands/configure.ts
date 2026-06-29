@@ -2,6 +2,8 @@ import type { Command } from "commander";
 import inquirer from "inquirer";
 import { saveConfig, loadConfig } from "../config.js";
 
+export const SUPPORTED_REGIONS = ["Delhi", "Chennai"] as const;
+
 export function registerConfigureCommand(program: Command): void {
   program
     .command("configure")
@@ -32,7 +34,7 @@ export function registerConfigureCommand(program: Command): void {
           type: "list",
           name: "defaultRegion",
           message: "Default Region:",
-          choices: ["Delhi", "Mumbai", "Pune"],
+          choices: [...SUPPORTED_REGIONS],
           default: existing.defaultRegion ?? "Delhi",
         },
       ]);

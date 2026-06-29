@@ -12,21 +12,30 @@ describe("ReserveIpService", () => {
 
   beforeEach(() => { http = mockHttp(); rip = new ReserveIpService(http); });
 
-  it("list() calls GET /reserve_ip/", async () => {
+  it("list() calls GET /reserve_ips/", async () => {
     (http.get as any).mockResolvedValue({ code: 200, data: [] });
     await rip.list();
-    expect(http.get).toHaveBeenCalledWith("/reserve_ip/");
+    expect(http.get).toHaveBeenCalledWith("/reserve_ips/");
   });
 
-  it("create() calls POST /reserve_ip/", async () => {
+  it("create() calls POST /reserve_ips/", async () => {
     (http.post as any).mockResolvedValue({ code: 200, data: { id: 1 } });
     await rip.create();
-    expect(http.post).toHaveBeenCalledWith("/reserve_ip/");
+    expect(http.post).toHaveBeenCalledWith("/reserve_ips/", {});
   });
 
-  it("delete(id) calls DELETE /reserve_ip/{id}/", async () => {
+  it("delete(ipAddress) calls DELETE /reserve_ips/{ipAddress}/actions/", async () => {
     (http.delete as any).mockResolvedValue({ code: 200, data: null });
-    await rip.delete(1);
-    expect(http.delete).toHaveBeenCalledWith("/reserve_ip/1/");
+    await rip.delete("164.52.198.54");
+    expect(http.delete).toHaveBeenCalledWith("/reserve_ips/164.52.198.54/actions/");
+  });
+
+  it("action(ipAddress, params) calls POST /reserve_ips/{ipAddress}/actions/", async () => {
+    (http.post as any).mockResolvedValue({ code: 200, data: { status: "Attached" } });
+    await rip.action("164.52.198.54", { vm_id: 259555, type: "attach" });
+    expect(http.post).toHaveBeenCalledWith("/reserve_ips/164.52.198.54/actions/", {
+      vm_id: 259555,
+      type: "attach",
+    });
   });
 });

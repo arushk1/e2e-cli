@@ -26,15 +26,26 @@ export function registerFirewallCommands(
     });
 
   fw.command("create")
-    .description("Create a new firewall")
+    .description("Create a new Fortigate firewall")
     .requiredOption("--name <name>", "Firewall name")
-    .option("--rules <rules>", "JSON array of rules")
+    .requiredOption("--plan <plan>", "Fortigate plan identifier")
+    .requiredOption("--image <image>", "Fortigate image identifier")
+    .requiredOption("--vpc-id <id>", "VPC ID")
+    .requiredOption("--cn-id <id>", "Committed node SKU ID")
+    .option("--label <label>", "Resource label", "Default")
+    .option("--region <region>", "Region code", "ncr")
+    .option("--reserve-ip <ip>", "Reserved IP to assign")
     .action(async (opts) => {
       const client = getClient();
-      const rules = opts.rules ? JSON.parse(opts.rules) : [];
       const result = await client.firewalls.create({
+        label: opts.label,
         name: opts.name,
-        rules,
+        region: opts.region,
+        plan: opts.plan,
+        image: opts.image,
+        vpc_id: Number(opts.vpcId),
+        cn_id: Number(opts.cnId),
+        reserve_ip: opts.reserveIp,
       });
       formatOutput(result.data, program.opts().output);
     });
